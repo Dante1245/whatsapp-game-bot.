@@ -1,4 +1,3 @@
-flask
-twilio
-gunicorn
-twilio==7.16.1
+Flask==2.3.2
+twilio==8.10.0
+gunicorn==21.2.0
