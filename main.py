@@ -1,10 +1,9 @@
-from flask import Flask, request
-from twilio.twiml.messaging_response import MessagingResponse
+from flask import Flask, request, jsonify
 import random
 
 app = Flask(__name__)
 
-# List of 110 questions
+# Shuffle 110 questions
 questions = [
     "What age did you have your first sex?",
     "Do you or have you smoked?",
@@ -117,37 +116,36 @@ questions = [
     "Would you give me a kiss or a hug?",
     "Send me two of your sexiest pics."
 ]
+random.shuffle(questions)
 
-# Dictionary to track answered questions
-answered = {}
+answered = []
+unanswered = list(questions)
 
-@app.route("/whatsapp", methods=['POST'])
-def whatsapp():
-    incoming_msg = request.values.get('Body', '').strip()
+@app.route('/')
+def home():
+    return "Pick-a-Number WhatsApp Bot is running!"
+
+@app.route('/webhook', methods=['POST'])
+def whatsapp_webhook():
+    incoming_msg = request.values.get('Body', '').strip().lower()
     sender = request.values.get('From', '')
-    resp = MessagingResponse()
-    msg = resp.message()
 
     if incoming_msg.isdigit():
         num = int(incoming_msg)
-        if 1 <= num <= len(questions):
-            if num in answered:
-                msg.body(f"Question {num} has already been answered.")
+        if 1 <= num <= 110:
+            question = questions[num - 1]
+            if question not in answered:
+                answered.append(question)
+                unanswered.remove(question)
+                reply = f"{question}\n\nAnswered: {len(answered)} | Left: {len(unanswered)}"
             else:
-                question = questions[num - 1]
-                answered[num] = sender
-                msg.body(f"Question {num}: {question}")
+                reply = f"Question {num} already answered. Try another!"
         else:
-            msg.body("Please choose a number between 1 and 110.")
-    elif incoming_msg.lower() == "status":
-        total = len(questions)
-        answered_count = len(answered)
-        unanswered_count = total - answered_count
-        msg.body(f"Answered: {answered_count} | Unanswered: {unanswered_count}")
+            reply = "Pick a number between 1 and 110."
     else:
-        msg.body("Please send a number between 1 and 110 to receive a question.")
+        reply = "Welcome to the Pick-a-Number game! Reply with a number (1-110)."
 
-    return str(resp)
+    return jsonify({"message": reply})
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run()
