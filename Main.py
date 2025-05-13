@@ -1,159 +1,83 @@
-from flask import Flask, request, Response
+from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 import random
 
 app = Flask(__name__)
 
-# Complete list of 110 questions
-questions = {
-    1: "What age did you have your first sex?",
-    2: "Do you or have you smoked?",
-    3: "Ever had sex with someone you don't love?",
-    4: "Wanna kiss me?",
-    5: "Ever kissed someone of the same gender?",
-    6: "Send me 2 pics of your pussy.",
-    7: "What's your best color?",
-    8: "What's your favorite sex position?",
-    9: "Ever been abused?",
-    10: "Tell me how you had your last sex, in detail.",
-    11: "Do you watch porn?",
-    12: "How long do you want sex to last?",
-    13: "Do you love me?",
-    14: "Are you naughty?",
-    15: "Favorite body part of your opposite gender?",
-    16: "Ever had sex?",
-    17: "Would you kiss me?",
-    18: "Do you drink alcohol?",
-    19: "Ever begged for sex?",
-    20: "Do you want to fuck me?",
-    21: "Have you ever played someone?",
-    22: "What turns you on?",
-    23: "Ever had sex with a same gender person?",
-    24: "Tell me 3 of your deepest secrets.",
-    25: "Best friend?",
-    26: "Do you love sex?",
-    27: "Use my pic as your DP for 1 week.",
-    28: "Wanna date me?",
-    29: "What year did you have your first sex?",
-    30: "Favorite clothes?",
-    31: "Ever made out?",
-    32: "Best hobby?",
-    33: "Have you ever masturbated?",
-    34: "Your crush?",
-    35: "Complete d**k.",
-    36: "Complete p***y.",
-    37: "Do you go to night parties?",
-    38: "Do you want to explore me?",
-    39: "Send me your dance videos.",
-    40: "Do you like BJ?",
-    41: "Have you ever been played?",
-    42: "If you see me naked, what would you do?",
-    43: "Buy me a gift.",
-    44: "Will you let me finger you or stroke your dick?",
-    45: "Send me 2 pics of your dick.",
-    46: "Promise to have sex with me.",
-    47: "Do you sex chat?",
-    48: "Ever exchanged nude?",
-    49: "Tell me things you want from me.",
-    50: "Do you love me?",
-    51: "Are you a virgin?",
-    52: "Have some mistakenly seen your dick or pussy?",
-    53: "How much do you enjoy sex?",
-    54: "Would you let me touch you?",
-    55: "Tell me how you really feel about me.",
-    56: "Player or loyal?",
-    57: "Would you have sex with me?",
-    58: "What do you love doing the most?",
-    59: "Birthday?",
-    60: "Ever fucked someone hard and cried?",
-    61: "Ever slept naked?",
-    62: "What's your biggest fear?",
-    63: "Single or taken?",
-    64: "Favorite song?",
-    65: "Favorite movie?",
-    66: "Nickname?",
-    67: "Would you kiss me when we meet?",
-    68: "Would you watch porn with me or give me a BJ?",
-    69: "Hairy dick/pussy or shaved?",
-    70: "Do you always wear a bra?",
-    71: "Do you always wear panties?",
-    72: "Promise to kiss me when we meet.",
-    73: "If you have the chance, would you date me?",
-    74: "Wanna fuck me?",
-    75: "Tell me an erotic story.",
-    76: "Shy or bold?",
-    77: "Ever been so horny you begged for it?",
-    78: "Tell me a naughty story.",
-    79: "How do you want the dick or pussy to be?",
-    80: "Big dicks or normal dicks?",
-    81: "Big pussy or normal pussy?",
-    82: "Do you prefer a hard fuck or a soft one?",
-    83: "Will you kiss me when we meet?",
-    84: "Send me your breast or chest picture.",
-    85: "Send me your nude pics or porn videos.",
-    86: "Would you kiss me right now if I asked?",
-    87: "What gets you wet?",
-    88: "Do you prefer licking or sucking?",
-    89: "Do you wear bras all the time?",
-    90: "Do you want to have sex with me?",
-    91: "Favorite body part on yourself?",
-    92: "What's your happiest moment?",
-    93: "What's your worst mistake?",
-    94: "Describe your most enjoyable sex in detail.",
-    95: "Favorite time to have sex?",
-    96: "Best memory?",
-    97: "Send me your twerking video.",
-    98: "Ever had sex and cried from pleasure?",
-    99: "Favorite sex outfit?",
-    100: "Do you moan during sex?",
-    101: "Do you want to sex chat with me right now?",
-    102: "Tell me one naughty thing you'd like me to do to you.",
-    103: "Last time you cried and why?",
-    104: "Ask me anything.",
-    105: "Do you want to try something kinky with me?",
-    106: "Tell me one thing you'd change about yourself.",
-    107: "Last kiss and with who?",
-    108: "Last sex?",
-    109: "Would you give me a kiss or a hug?",
-    110: "Send me two of your sexiest pics."
-}
+# Load all 110 questions
+questions = [
+    "1. Birthday", "2. Worst mistake", "3. Ur greatest fear", "4. Crush", "5. Best colour",
+    "6. Do u or have u smoked?", "7. Do u drink alcohol?", "8. Do u go for nyt parties?",
+    "9. Last time u cried and wat caused it", "10. Ur dreams", "11. Have u or do u maturate?",
+    "12. Happiest moment", "13. Best memory", "14. Last kiss and wit who", "15. Do you watch porn?",
+    "16. Your best body part", "17. Ever been fucked hard nd u cried?", "18. Complete d**k",
+    "19. Complete p***y", "20. Ur most enjoyable sex,tel me abt it in details", "21. Full name",
+    "22. If u have d chance wil u date me?", "23. Will u kiss me?", "24. Kiss or hug",
+    "25. Favorite song", "26. Favorite movie", "27. Ever kissed a same gender person?",
+    "28. Do u love bj?", "29. Send me ur number", "30. Ever maked out?", "31. Wanna explore me?",
+    "32. Wanna kiss me?", "33. Wanna fuck me?", "34. Wanna date me?", "35. Ever been abused?",
+    "36. Best hubby", "37. Tel me 3 deepest secrets", "38. Send me ur nude pics or porn videos",
+    "39. Favorite body part of ur opposite gender", "40. Big dicks or normal dicks",
+    "41. Big pussy or normal pussy", "42. Promise to kiss me wen we meet",
+    "43. Tell me how u really feel about me", "44. Tell me a story", "45. Do u wear bra?",
+    "46. Do u always wear pant?", "47. Promise to watch porn wit me or gv me a Bj",
+    "48. Will u let me finger u or stroke ur dick?", "49. Wat age did u have ur first sex",
+    "50. Wat year did u have ur first sex", "51. Player or loyal", "52. Single or taken",
+    "53. Have you ever been played?", "54. Have you ever played someone?",
+    "55. Tell me an erotic story", "56. Last sex", "57. Ever had sex wit a same gender person?",
+    "58. Use my pic as ur dp for 1 week", "59. Send me ur breast or chest picture",
+    "60. Do u sex chat?", "61. If u see me naked, wat will u do", "62. Shy or bold",
+    "63. Ever slept naked?", "64. Virgin?", "65. Wat turns u on", "66. What do you love doing the most",
+    "67. Ever begged for sex?", "68. D craziest tin u have ever done", "69. Best friend",
+    "70. Ever had sex?", "71. Age", "72. Are you naughty?", "73. Naughtiest tin u have ever done",
+    "74. Ever exchanged nude?", "75. Buy me a gift", "76. Wil you let me touch you?",
+    "77. Do you love me?", "78. How do you want d dick or pussy to be.", "79. Sex chat with me",
+    "80. Have some mistakenly seeing ur dick or pussy?", "81. What gets u wet",
+    "82. Last time u felt like having sex", "83. Favorite clothes", "84. Ask me anything",
+    "85. Promise to have sex with me", "86. Nickname", "87. Favorite sex position",
+    "88. How long do you want sex to be.", "89. Do you love sex?", "90. Something u will change about yourself",
+    "91. Send me two of your sexiest pics", "92. Tell me how you had ur last time sex in details",
+    "93. How much do you enjoy sex", "94. Tell me things you want from me.", "95. Hard fuck or normal",
+    "96. Send me 2 pics of your dick", "97. Send me 2 pics of your pussy", "98. Hairy dick/pussy or shaved",
+    "99. Send me your dance videos", "100. Will you fuck me?", "101. Ever fucked someone you don't love?",
+    "102. Send me your twerking video", "103. What’s your wildest fantasy?",
+    "104. Would you try public sex?", "105. Send me a kiss emoji", "106. Moan for me in voice note",
+    "107. Favorite romantic song", "108. Do you prefer fast or slow sex?", "109. Describe a perfect night with me",
+    "110. How would you seduce me?"
+]
 
-answered_questions = set()
+# Shuffle once and keep order
+shuffled = random.sample(range(1, 111), 110)
+answered = set()
 
-@app.route('/webhook', methods=['POST'])
-def webhook():
+@app.route("/webhook", methods=["POST"])
+def whatsapp_bot():
     incoming_msg = request.values.get('Body', '').strip()
     resp = MessagingResponse()
+    msg = resp.message()
 
-    if incoming_msg.lower() in ['start', 'play']:
-        remaining = [num for num in questions if num not in answered_questions]
+    if incoming_msg.lower() in ['hi', 'start', 'play']:
+        remaining = [num for num in shuffled if num not in answered]
         if not remaining:
-            resp.message("You’ve answered all questions!")
+            msg.body("Game over! All 110 questions have been answered.")
         else:
-            choice = random.choice(remaining)
-            answered_questions.add(choice)
-            resp.message(f"Question {choice}: {questions[choice]}")
-    elif incoming_msg.isdigit():
+            msg.body("Welcome to the *Pick-a-Number* game!\nChoose a number between 1 and 110.")
+        return str(resp)
+
+    if incoming_msg.isdigit():
         num = int(incoming_msg)
-        if num in questions:
-            if num in answered_questions:
-                resp.message(f"Question {num} has already been answered.")
-            else:
-                answered_questions.add(num)
-                resp.message(f"Question {num}: {questions[num]}")
+        if num < 1 or num > 110:
+            msg.body("Please pick a number between 1 and 110.")
+        elif num in answered:
+            msg.body(f"Number {num} has already been picked. Try another.")
         else:
-            resp.message("Invalid number. Choose between 1 and 110.")
+            question = questions[num - 1]
+            answered.add(num)
+            msg.body(f"Question {num}: {question}\n\n(Answered: {len(answered)}, Remaining: {110 - len(answered)})")
     else:
-        resp.message("Type 'start' or choose a number (1-110) to play.")
+        msg.body("Send a number (1-110) to get your question. Or type 'start' to begin.")
 
-    return Response(str(resp), mimetype="application/xml")
-
-@app.route('/status', methods=['POST'])
-def status():
-    sid = request.form.get('MessageSid')
-    status = request.form.get('MessageStatus')
-    print(f"Message SID {sid} changed status to {status}")
-    return ('', 200)
+    return str(resp)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
