@@ -1,3 +1,4 @@
 flask
 twilio
 gunicorn
+twilio==7.16.1
